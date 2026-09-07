@@ -51,6 +51,10 @@ h1, .brand {
 .site-header {
     border-bottom: none;
     padding: 1.25rem 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: var(--bg);
 }
 
 .navbar {
@@ -87,6 +91,44 @@ h1, .brand {
 
 .nav-links a:hover {
     color: var(--accent);
+}
+
+.nav-links a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -0.35rem;
+    width: 100%;
+    height: 2px;
+    background-color: var(--accent);
+    border-radius: 999px;
+    transform: scaleX(0);
+    transition: transform 0.25s ease;
+}
+
+.nav-links a:hover::after {
+    transform: scaleX(1);
+}
+
+body:has(#profile:target) .nav-links a[href="#profile"],
+body:has(#about:target) .nav-links a[href="#about"],
+body:has(#skills:target) .nav-links a[href="#skills"] {
+    color: var(--accent);
+}
+
+body:has(#profile:target) .nav-links a[href="#profile"]::after,
+body:has(#about:target) .nav-links a[href="#about"]::after,
+body:has(#skills:target) .nav-links a[href="#skills"]::after {
+    transform: scaleX(1);
+}
+
+section:target {
+    animation: sectionPulse 1.2s ease;
+}
+
+@keyframes sectionPulse {
+    0% { background-color: rgba(55, 51, 224, 0.12); }
+    100% { background-color: transparent; }
 }
 
 .hero {
@@ -394,4 +436,103 @@ h1, .brand {
     font-weight: 600;
     color: var(--ink);
     font-size: 1.15rem;
+}
+
+.skills {
+    padding: 6rem 0;
+    border-top: 1px solid var(--line);
+    scroll-margin-top: 2rem;
+}
+
+.skills-bio {
+    border-left: none;
+    padding-left: 0;
+    max-width: 640px;
+}
+
+.skill-deck {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding-top: 2.5rem;
+}
+
+.skill-card {
+    --rot: 0deg;
+    background-color: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    width: 210px;
+    margin-left: -3rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+    transform: rotate(var(--rot));
+    transition: transform 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease, filter 0.35s ease;
+}
+
+.skill-card:first-child {
+    margin-left: 0;
+}
+
+.skill-deck:hover .skill-card {
+    opacity: 0.5;
+    filter: grayscale(0.5);
+}
+
+.skill-card:hover {
+    transform: rotate(0deg) translateY(-1.5rem) scale(1.08);
+    z-index: 5;
+    opacity: 1 !important;
+    filter: none !important;
+    border-color: var(--accent);
+    box-shadow: 0 30px 60px rgba(55, 51, 224, 0.35);
+}
+
+.skill-card-bar {
+    display: flex;
+    gap: 0.4rem;
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--line);
+    background-color: #1c1a44;
+    border-radius: 16px 16px 0 0;
+}
+
+.skill-card-body {
+    padding: 1.8rem 1.4rem 2rem;
+    text-align: center;
+}
+
+.skill-logo {
+    width: 4.5rem;
+    height: 4.5rem;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 1rem;
+    border-radius: 12px;
+}
+
+.skill-card-body h3 {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 1.1rem;
+    margin-bottom: 0.6rem;
+    color: var(--ink);
+}
+
+.skill-card-body p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+@media (max-width: 700px) {
+    .skill-card {
+        margin-left: 0;
+        margin-bottom: 1.5rem;
+        transform: rotate(0deg) !important;
+        width: 100%;
+        max-width: 280px;
+    }
+    .skill-deck {
+        flex-direction: column;
+        align-items: center;
+    }
 }
