@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bagas - Portfolio</title>
+    <title>{{ name }} - Portfolio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
@@ -12,10 +12,10 @@
 <body>
     <header class="site-header">
     <div class="container navbar">
-        <a href="#profile" class="brand">Portofolio</a>
-        <nav class="nav-links">
-            <a href="#about">About</a>
-            <a href="#skills">Skills</a>
+        <a href="{% url 'main:show_main' %}" class="brand">{{ name }}</a>
+        <nav>
+            <a href="{% url 'main:show_main' %}">Profile</a>
+            <a href="{% url 'main:show_experience' %}">Experience</a>
         </nav>
     </div>
     </header>
@@ -24,7 +24,7 @@
         <section class="hero" id="profile">
             <div class="container hero-grid">
                 <div class="hero-identity">
-                    <h1>Hi, It's <span class="highlight">Bagas</span></h1>
+                    <h1>Hi, It's <span class="highlight">{{ name }}</span></h1>
                     <p class="hero-role">
                         I'm a
                         <span class="role-wrapper">
@@ -53,7 +53,7 @@
                 </div>
                 <div class="hero-photo">
                     <div class="photo-block"></div>
-                    <img class="avatar" src="/static/img/Nobackground.png" alt="Photo of Bagas">
+                    <img class="avatar" src="/static/img/Nobackground.png" alt="Photo of {{ name }}">
                 </div>
             </div>
         </section>
@@ -69,14 +69,12 @@
                         </div>
                     </div>
                     <div class="frame-photo">
-                        <img src="/static/img/BagasFasilkom.jpeg" alt="Photo of Bagas at Fakultas Ilmu Komputer UI">
+                        <img src="/static/img/BagasFasilkom.jpeg" alt="Photo of {{ name }} at Fakultas Ilmu Komputer UI">
                     </div>
                 </div>
                 <div class="about-content">
                     <p class="section-kicker">About Me</p>
-                    <p class="about-bio">
-                        A student of Information Systems at the University of Indonesia with a strong passion for graphic design and social media. I am a creative, proactive individual with a high level of adaptability. My experience as a Creative Division Volunteer at a school art performance event has trained me in project management, teamwork, and effective communication, while also honing my skills in using design tools such as Canva, Adobe Photoshop, and Procreate. I am enthusiastic about continuing to learn and make a meaningful contribution within the campus environment.
-                    </p>
+                    <p class="about-bio">{{ bio }}</p>
                     <div class="meta-list">
                         <div class="meta-row">
                             <div class="meta-icon">
@@ -86,7 +84,7 @@
                             </div>
                             <div>
                                 <dt>NPM</dt>
-                                <dd>2506656551</dd>
+                                <dd>{{ npm }}</dd>
                             </div>
                         </div>
                         <div class="meta-row">
@@ -97,7 +95,7 @@
                             </div>
                             <div>
                                 <dt>Program Studi</dt>
-                                <dd>System Information, University of Indonesia</dd>
+                                <dd>{{ study_program }}</dd>
                             </div>
                         </div>
                     </div>
@@ -167,7 +165,7 @@
 
     <footer class="site-footer">
         <div class="container">
-            <p>&copy; 2026 Bagas. Fakultas</p>
+            <p>&copy; 2026 {{ name }}. Fakultas Ilmu Komputer, Universitas Indonesia</p>
         </div>
     </footer>
 </body>
