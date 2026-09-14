@@ -1,6 +1,6 @@
 from django.shortcuts import render
 
-from main.models import Experience
+from main.models import Experience, Skill
 
 
 def show_main(request):
@@ -9,10 +9,10 @@ def show_main(request):
         "npm": "2506656551",
         "study_program": "S1 Sistem Informasi, University of Indonesia",
         "bio": (
-            "A student of Information Systems at the University of Indonesia " 
+            "A student of Information Systems at the University of Indonesia "
             "with a strong passion for graphic design and social media. "
             "I am a creative, proactive individual with a high level of adaptability. "
-            "My experience as a Creative Division Volunteer at a school art performance event " 
+            "My experience as a Creative Division Volunteer at a school art performance event "
             "has trained me in project management, teamwork, and effective communication, "
             "while also honing my skills in using design tools such as Canva, Adobe Photoshop, "
             "Marvelous Designer, Figma, and Procreate. I am enthusiastic about continuing "
@@ -28,3 +28,11 @@ def show_experience(request):
         "experience_list": Experience.objects.all(),
     }
     return render(request, "experience.html", context)
+
+
+def show_skill(request):
+    context = {
+        "name": "Bagas",
+        "skill_list": Skill.objects.all(),
+    }
+    return render(request, "skill.html", context)
