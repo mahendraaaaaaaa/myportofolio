@@ -1,61 +1,79 @@
 # Portofolio — Bagas Mahendra
 
-Website portofolio pribadi, dibangun dari nol pakai HTML & CSS murni (tanpa framework). Fokusnya sederhana: tampilin siapa aku, latar belakang, dan tools desain yang biasa aku pakai.
+Website portofolio pribadi, dibangun pakai Django (Python) untuk backend dan HTML & CSS murni untuk tampilan (tanpa CSS framework). Fokusnya sederhana: tampilin siapa aku, latar belakang, pengalaman, dan tools desain yang biasa aku pakai — dengan data yang dikelola lewat model Django, bukan hardcoded di template.
 
 ---
 
 ## Fitur
 
-- **Sticky navbar berbentuk pill** yang nge-highlight menu aktif sesuai section yang sedang dilihat, ini murni pakai CSS selector `:has()` dan `:target`, jadi nggak butuh JavaScript sama sekali buat scroll-spy-nya.
-- **Role text yang berganti otomatis** ("Designer", "Computer Science", "Web Developer") pakai CSS `@keyframes`, looping 9 detik dengan 3 fase.
+- **Sticky navbar berbentuk pill** yang nge-highlight menu aktif sesuai section/halaman yang sedang dilihat, ini murni pakai CSS selector `:has()` dan `:target`, jadi nggak butuh JavaScript sama sekali buat scroll-spy-nya.
+- **Role text yang berganti otomatis** ("Designer", "Computer Science", "Web Developer") ditampilkan lewat *ticker* berjalan (`hero-ticker` / `ticker-track`) yang di-loop tanpa henti pakai CSS `@keyframes` (`translateX(0)` ke `translateX(-50%)`, `animation: tickerMove 72s linear infinite`), dengan konten ticker diduplikasi dua kali biar transisi dari ujung ke ujung terlihat mulus/seamless.
 - **Section "About"** dengan bingkai foto ala browser window (dot merah-kuning-hijau) dan info NPM/Program Studi dalam bentuk pill.
-- **Skill deck** - kartu skill software desain yang ditumpuk miring kayak kartu remi, dan rapi lagi + sedikit terangkat kalau di-hover.
+- **Section "Experience"** — daftar pengalaman (internship, volunteer, dsb.) yang diambil dari model `Experience`, menampilkan kategori, status (sedang berlangsung/selesai), dan deskripsi tiap pengalaman.
+- **Section "Skills"** — kartu skill software desain yang ditumpuk miring kayak kartu remi (skill deck), diambil dari model `Skill`, rapi lagi + sedikit terangkat kalau di-hover.
 - **Fully responsive** - di layar sempit, skill deck otomatis berubah jadi vertikal dan kartunya nggak dimiringkan lagi.
 
 ## Tech Stack
 
-- HTML5 semantic markup
+- Django (Python) — routing, view, dan ORM/model untuk data Experience & Skill
+- HTML5 semantic markup + Django Template Language
 - CSS3 (custom properties / CSS variables, Grid, Flexbox, keyframe animation)
-- Google Fonts — *Space Grotesk*
-- Tanpa JavaScript, tanpa build tool, tanpa framework
+- Google Fonts — *Space Grotesk* & *Anton*
+- Tanpa JavaScript custom, tanpa build tool, tanpa CSS framework
 
 ## Struktur Proyek
 
-├── templates
-│   └── index.html
 ├── static/
 │   ├── css/
 │   │   └── style.css
 │   └── img/
 │       ├── Nobackground.png
 │       ├── BagasFasilkom.jpeg
+│       ├── StarLogo.png
+│       ├── PhoneIcon.png
 │       ├── PhotoshopLogo.png
 │       ├── MarvelousDesignerLogo.png
 │       ├── ProcreateLogo.png
 │       └── FigmaLogo.png
+├── templates/
+│       ├── index.html
+│       ├── experience.html
+│       └── skill.html
 └── README.md
 
 ## Cara Menjalankan
-
-Karena ini murni HTML/CSS statis, nggak perlu install dependency apa pun.
 
 1. Clone repo ini
    ```bash
    git clone <url-repo-kamu>
    cd <nama-folder>
    ```
-2. Pastikan folder `static/img/` sudah berisi semua asset gambar yang dipakai di `index.html`.
-3. Buka `index.html` langsung di browser, **atau** jalankan local server biar path relatif jalan dengan benar, misalnya:
+2. Buat & aktifkan virtual environment, lalu install dependency:
    ```bash
-   npx serve .
-   # atau
-   python3 -m http.server
+   python3 -m venv env
+   source env/bin/activate
+   pip install -r requirements.txt
    ```
-4. Akses di `http://localhost:<port>`.
+3. Jalankan migration supaya skema database (termasuk tabel `Experience` dan `Skill`) sesuai dengan model:
+   ```bash
+   python manage.py migrate
+   ```
+4. Pastikan folder `static/img/` sudah berisi semua asset gambar yang dipakai di template.
+5. (Opsional) Buat superuser untuk mengisi data Experience & Skill lewat Django admin:
+   ```bash
+   python manage.py createsuperuser
+   ```
+6. Jalankan development server:
+   ```bash
+   python manage.py runserver
+   ```
+7. Akses di `http://localhost:8000`.
 
 ## Progress Pengerjaan
 
-Jujur aja, aku nggak ngerjain ini dicicil rapi tiap minggu, dikerjain dalam 2–3 hari, dengan commit yang cukup sering (tiap beberapa jam sekali, pas ada bagian yang udah kelar/bisa di-checkpoint). Jadi log di bawah ini aku susun per hari & sesi kerja, bukan per minggu, biar lebih mencerminkan proses aslinya.
+Jujur lagi lagi, aku nggak ngerjain ini dicicil rapi tiap minggu, dikerjain dalam beberapa hari/sesi. Jadi log di bawah ini aku susun per hari & sesi kerja, bukan per minggu, biar lebih mencerminkan proses aslinya.
+
+### Tugas 1
 
 Hari 1
 
@@ -75,9 +93,11 @@ Sesi pagi–siang - Selesaikan scroll-spy navbar tanpa JS (kombinasi :target + :
 Sesi sore - Polishing keseluruhan: rapihin CSS variable biar konsisten, cek alt text & aksesibilitas dasar, testing di beberapa ukuran layar.
 Sesi malam - Final review, commit terakhir sebelum deploy.
 
-## Pertanyaan Reflektif
+### Tugas 2
 
-> Diisi tiap minggu sepanjang semester, satu blok `### Tugas N` per minggu.
+13 September 2026, aku sempet rombak desain dari yang sebelumnya jadi seperti sekarang. 14 September 2026, sesi jam 3 sore - Menambahkan model `Skill` (dan melengkapi model `Experience`) di `models.py`, membuat migration-nya (`makemigrations` & `migrate`), menambahkan view `show_skill` dan url `skill/` di `main/urls.py`, lalu membangun template `skill.html` yang menarik data dari `Skill.objects.all()` dan ditampilkan lewat skill deck yang sudah ada stylingnya dari Tugas 1. Sekalian menyempurnakan ticker role text di home page supaya loop-nya berjalan tanpa henti (seamless, tanpa jeda/patah saat animasi mengulang).
+
+## Pertanyaan Reflektif
 
 ### Tugas 1
 
@@ -95,9 +115,54 @@ Sesi malam - Final review, commit terakhir sebelum deploy.
 
    Untuk iterasi selanjutnya, dua fungsionalitas dinamis yang paling ingin aku siapkan: (1) form kontak fungsional (misalnya lewat layanan seperti Formspree, atau backend kecil sendiri) supaya pengunjung bisa langsung mengirim pesan tanpa pindah aplikasi, dan (2) section proyek yang datanya diambil dari file data terpisah (JSON) atau headless CMS ringan, supaya aku bisa menambah proyek baru tanpa perlu mengubah struktur HTML setiap kali.
 
+### Tugas 2
+
+1. Alur yang terjadi ketika pengguna membuka halaman skill baru (`/skill/`), dari request diterima sampai data ditampilkan di browser, adalah sebagai berikut:
+
+   - **`urls.py` proyek** (`portofolio/urls.py`) adalah titik masuk pertama semua request. Django mencocokkan path `/skill/` ke pola yang ada di `urlpatterns`; karena tidak ada yang cocok langsung, request diteruskan lewat `include("main.urls")` ke level aplikasi:
+     ```python
+     path("", include("main.urls")),
+     ```
+   - **`urls.py` aplikasi** (`main/urls.py`) adalah tempat path spesifik `/skill/` dicocokkan ke view yang bersangkutan:
+     ```python
+     path("skill/", show_skill, name="show_skill"),
+     ```
+     Django kemudian memanggil fungsi `show_skill` di `main/views.py`. `app_name = "main"` juga yang membuat `{% url 'main:show_skill' %}` di template bisa dipakai untuk generate link tanpa hardcode path.
+   - **View** (`show_skill` di `main/views.py`) adalah "otak" dari request ini. Fungsi ini melakukan query semua data skill dari database lewat ORM:
+     ```python
+     "skill_list": Skill.objects.all(),
+     ```
+     Hasil query (queryset) dimasukkan ke dictionary `context` bersama `name`, lalu view memanggil `render()` yang menggabungkan `context` tersebut dengan template `skill.html`.
+   - **Model** (`Skill` di `main/models.py`) mendefinisikan struktur data yang di-query di langkah sebelumnya: field `name`, `description`, `logo`, dst. `Skill.objects.all()` diterjemahkan ORM menjadi query SQL ke database, dan hasil baris-baris tabel diubah menjadi objek-objek Python (instance `Skill`) yang atributnya bisa diakses di template.
+   - **Template** (`skill.html`) menerima `context` dari view, lalu `{% for skill in skill_list %}` melakukan looping tiap objek `Skill` dan me-render `.skill-card` per item — `{{ skill.name }}`, `{{ skill.description }}`, `{{ skill.logo }}` diambil langsung dari atribut objek model yang dikirim view. Hasil akhirnya berupa HTML yang dikirim balik sebagai response ke browser pengunjung.
+
+   Ringkasnya: **project `urls.py`** berperan sebagai gerbang/router utama → **app `urls.py`** memetakan path ke view spesifik → **view** mengambil data lewat model dan menentukan template mana yang dipakai → **model** mendefinisikan struktur data sekaligus menjadi jembatan ke database → **template** menjadi lapisan presentasi akhir ke pengunjung.
+
+2. Karena secara arsitektur MVT, template itu murni layer presentasi — tugasnya menampilkan data, bukan menyimpan data. Kalau daftar skill di-hardcode langsung di `skill.html` (misal pakai `<div>` manual satu-satu per software), setiap kali mau menambah/mengubah/menghapus skill, aku harus mengedit file HTML yang isinya campur aduk dengan markup, gampang salah menaruh tag, dan tidak ada validasi tipe data sama sekali.
+
+   Dengan disimpan di model (seperti yang sekarang dilakukan lewat `skill_list` yang di-loop pakai `{% for skill in skill_list %}`), dampaknya:
+   - **Single source of truth** — data skill ada di satu tempat (database), bukan tersebar di kode template.
+   - **Bisa diubah tanpa menyentuh kode** — lewat Django admin, menambah skill baru tinggal input form, tidak perlu re-deploy.
+   - **Separation of concerns** — model mengurus data & struktur (nama, deskripsi, logo), view mengurus logic pengambilan data, template mengurus tampilan. Ini membuat masing-masing bagian lebih mudah di-maintain dan di-debug secara independen.
+   - **Query-able** — bisa difilter/diurutkan/dibatasi lewat ORM (misalnya mengurutkan skill berdasarkan tanggal ditambahkan), sesuatu yang tidak mungkin dilakukan kalau datanya statis di HTML.
+
+3. Perbedaan `makemigrations` dan `migrate`:
+
+   - `makemigrations` membaca perubahan yang dibuat di `models.py` (dibandingkan migration terakhir yang tercatat), lalu **menghasilkan file migration baru** di folder `migrations/` berisi instruksi perubahan skema. Di tahap ini, database belum berubah sama sekali — ini baru "rencana"-nya.
+   - `migrate` **menerapkan** file-file migration yang ada (termasuk yang baru dibuat) ke database beneran, sehingga skema tabel di database benar-benar berubah.
+
+   Contoh konkret dari proyek ini: saat menambahkan field baru, misalnya `logo` di model `Skill` (supaya bisa menampilkan `skill.logo` di `skill-card`), alurnya:
+   1. Edit `models.py`, tambahkan field `logo` di class `Skill`.
+   2. Jalankan `python manage.py makemigrations` → Django mendeteksi ada field baru, menghasilkan file migration (misal `0002_skill_logo.py`) yang isinya operasi `AddField`.
+   3. Jalankan `python manage.py migrate` → migration tersebut diterapkan, kolom `logo` benar-benar ditambahkan ke tabel `skill` di database.
+
+   Kalau hanya menjalankan `makemigrations` tanpa `migrate`, kode Python sudah "tahu" ada field baru tapi database-nya belum punya kolomnya — akan error saat diakses.
+
 ## AI Disclosure
 
 Aku pakai AI (ChatGPT/Claude) sebagai *pair programmer*, terutama di tahap drafting awal — bukan buat generate satu website jadi sekali klik.
+
+### Tugas 1
 
 **Bagian yang dibantu AI:**
 - Ide struktur awal grid untuk hero & about section
@@ -112,8 +177,20 @@ Aku pakai AI (ChatGPT/Claude) sebagai *pair programmer*, terutama di tahap draft
 - **Aksesibilitas dasar** - nambahin `alt` text yang deskriptif di tiap `<img>` dan `aria-label` di social icon, yang di draft awal AI kosong/generic.
 - **Responsive fix** - breakpoint 700px untuk skill deck itu hasil trial-error manual aku sendiri karena versi awal dari AI patah di ukuran tablet (kartu ke-overlap parah karena `margin-left: -3rem` nggak di-reset).
 
+### Tugas 2
+
+**Bagian yang dibantu AI:**
+- Ide struktur field pada model `Skill` (mengikuti pola yang sudah ada di model `Experience`) dan penjelasan alur `urls.py` → `views.py` → `models.py` → `template` untuk menjawab pertanyaan reflektif nomor 1.
+- Pendekatan animasi *ticker* role text di home page supaya loop-nya berjalan terus-menerus tanpa jeda/berhenti, dengan konten ticker diduplikasi dan digeser lewat `translateX` secara infinite.
+- Penyusunan kalimat di blok `Tugas 2` pada README ini.
+
+**Bagian yang aku kerjain/perbaiki manual:**
+- Penyesuaian query dan penamaan context (`skill_list`) di view `show_skill` supaya konsisten dengan pola yang sudah dipakai di `show_experience`.
+- Verifikasi bahwa loop ticker benar-benar mulus (tidak ada jeda/patah terlihat) dengan mengecek langsung di browser, bukan cuma percaya asumsi AI soal timing animasi.
+- Keputusan struktur data (field apa saja yang perlu ada di model `Skill`) tetap aku yang tentukan sesuai kebutuhan tampilan `skill-card`.
+
 **Keterbatasan AI yang aku sadari selama proses ini:**
-AI cenderung ngasih solusi yang "kelihatan benar" tapi nggak selalu tervalidasi cross-browser atau cross-device, misalnya soal dukungan `:has()` dan `mask-image` yang sebenarnya belum universal di semua browser, tapi AI nggak otomatis ngingetin itu kecuali ditanya spesifik. AI juga nggak "melihat" hasil visualnya secara langsung, jadi hal-hal kayak overlap animasi atau spacing yang kelihatan aneh cuma bisa ketauan setelah aku benar-benar buka di browser dan cek manual. Intinya, AI ini alat bantu percepatan, tapi keputusan desain final dan debugging visual tetap kerjaan manusia.
+AI cenderung ngasih solusi yang "kelihatan benar" tapi nggak selalu tervalidasi cross-browser atau cross-device, misalnya soal dukungan `:has()` dan `mask-image` yang sebenarnya belum universal di semua browser, tapi AI nggak otomatis ngingetin itu kecuali ditanya spesifik. AI juga nggak "melihat" hasil visualnya secara langsung, jadi hal-hal kayak overlap animasi, ticker yang patah saat loop, atau spacing yang kelihatan aneh cuma bisa ketauan setelah aku benar-benar buka di browser dan cek manual. Intinya, AI ini alat bantu percepatan, tapi keputusan desain final dan debugging visual tetap kerjaan manusia.
 
 ---
 
