@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skills - {{ name }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="portfolio-nav">
+
+            <a href="{% url 'main:show_main' %}" class="brand">
+                <img class="brand-star" src="/static/img/StarLogo.png" alt="Star icon">
+                <span class="brand-text">
+                    BAGAS
+                    <small>PORTOFOLIO</small>
+                </span>
+            </a>
+
+            <nav class="main-nav" aria-label="Main navigation">
+                <a href="{% url 'main:show_main' %}">HOME</a>
+                <a href="{% url 'main:show_main' %}#about">PROFILE</a>
+                <a href="{% url 'main:show_experience' %}">EXPERIENCE</a>
+                <a href="{% url 'main:show_skill' %}" class="active">SKILLS</a>
+            </nav>
+
+            <a href="tel:+62895385527443" class="contact-info">
+                <span class="contact-icon">
+                    <img src="/static/img/PhoneIcon.png" alt="Phone icon">
+                </span>
+                <span class="contact-copy">
+                    <small>CONTACT ME</small>
+                    <strong>+62 895 3855 27443</strong>
+                </span>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <section class="skills" id="skills">
+            <div class="container">
+                <p class="section-kicker section-kicker--small">Perlengkapan saya</p>
+                <h1 class="skills-heading">Skills</h1>
+                <p class="about-bio skills-bio">
+                    The software I use most often for visual design
+                </p>
+
+                <div class="skill-deck">
+                    {% for skill in skill_list %}
+                        <div class="skill-card" style="--rot: {% cycle '-5deg' '-2deg' '2deg' '5deg' %};">
+                            <div class="skill-card-bar">
+                                <span class="dot dot-red"></span>
+                                <span class="dot dot-yellow"></span>
+                                <span class="dot dot-green"></span>
+                            </div>
+                            <div class="skill-card-body">
+                                {% if skill.logo %}
+                                    <img class="skill-logo" src="{{ skill.logo }}" alt="{{ skill.name }} logo">
+                                {% endif %}
+                                <h3>{{ skill.name }}</h3>
+                                <p>{{ skill.description }}</p>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="empty-state">
+                            Belum ada skill yang ditambahkan.
+                        </p>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; 2026 {{ name }}. Fakultas Ilmu Komputer, Universitas Indonesia</p>
+        </div>
+    </footer>
+</body>
+</html>

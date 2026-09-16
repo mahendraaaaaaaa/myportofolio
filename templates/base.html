@@ -1,17 +1,17 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ name }} - Portfolio</title>
-
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {% block meta %}
+        <title>{{ name }}</title>
+    {% endblock meta %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
-
 <body>
     <header class="site-header">
         <div class="portfolio-nav">
@@ -25,10 +25,13 @@
             </a>
 
             <nav class="main-nav" aria-label="Main navigation">
-                <a href="{% url 'main:show_main' %}" class="active">HOME</a>
-                <a href="#about">PROFILE</a>
-                <a href="{% url 'main:show_experience' %}">EXPERIENCE</a>
-                <a href="{% url 'main:show_skill' %}">SKILLS</a>
+                <a href="{% url 'main:show_main' %}"
+                   {% if request.resolver_match.url_name == 'show_main' %}class="active"{% endif %}>HOME</a>
+                <a href="{% url 'main:show_main' %}#about">PROFILE</a>
+                <a href="{% url 'main:show_experience' %}"
+                   {% if request.resolver_match.url_name == 'show_experience' or request.resolver_match.url_name == 'create_experience' %}class="active"{% endif %}>EXPERIENCE</a>
+                <a href="{% url 'main:show_skill' %}"
+                   {% if request.resolver_match.url_name == 'show_skill' %}class="active"{% endif %}>SKILLS</a>
             </nav>
 
             <a href="tel:+62895385527443" class="contact-info">
@@ -43,6 +46,7 @@
         </div>
     </header>
 
+    {% block content %}
     <main>
         <section class="hero" id="profile">
             <div class="hero-stage">
@@ -136,10 +140,11 @@
             </div>
         </section>
     </main>
+    {% endblock content %}
 
     <footer class="site-footer">
         <div class="container">
-            <p>&copy; 2026 {{ name }}. Fakultas Ilmu Komputer, Universitas Indonesia</p>
+            <p>&copy; 2026 {{ name }}. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
         </div>
     </footer>
 </body>
