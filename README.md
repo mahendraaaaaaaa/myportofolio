@@ -10,7 +10,10 @@ Website portofolio pribadi, dibangun pakai Django (Python) untuk backend dan HTM
 - **Role text yang berganti otomatis** ("Designer", "Computer Science", "Web Developer") ditampilkan lewat *ticker* berjalan (`hero-ticker` / `ticker-track`) yang di-loop tanpa henti pakai CSS `@keyframes` (`translateX(0)` ke `translateX(-50%)`, `animation: tickerMove 72s linear infinite`), dengan konten ticker diduplikasi dua kali biar transisi dari ujung ke ujung terlihat mulus/seamless.
 - **Section "About"** dengan bingkai foto ala browser window (dot merah-kuning-hijau) dan info NPM/Program Studi dalam bentuk pill.
 - **Section "Experience"** — daftar pengalaman (internship, volunteer, dsb.) yang diambil dari model `Experience`, menampilkan kategori, status (sedang berlangsung/selesai), dan deskripsi tiap pengalaman.
-- **Section "Skills"** — kartu skill software desain yang ditumpuk miring kayak kartu remi (skill deck), diambil dari model `Skill`, rapi lagi + sedikit terangkat kalau di-hover.
+- **Section "Skills"** — kartu skill software desain yang ditumpuk miring kayak kartu remi (skill deck), diambil dari model `Skill`, rapi lagi + sedikit terangkat kalau 
+di-hover.
+- **Section "Project"** — daftar karya/project yang diambil dari model `Project`, menampilkan kategori, deskripsi, dan link ke demo/repo (jika ada).
+- **Fitur CRUD penuh untuk Experience & Project** — data bisa ditambah (create), diubah (edit), dan dihapus (delete) langsung lewat halaman web tanpa masuk Django admin, dengan konfirmasi hapus lewat modal popover native (`popover="auto"`, tanpa JavaScript).
 - **Fully responsive** - di layar sempit, skill deck otomatis berubah jadi vertikal dan kartunya nggak dimiringkan lagi.
 
 ## Tech Stack
@@ -36,9 +39,16 @@ Website portofolio pribadi, dibangun pakai Django (Python) untuk backend dan HTM
 │       ├── ProcreateLogo.png
 │       └── FigmaLogo.png
 ├── templates/
+│       ├── base.html
 │       ├── index.html
 │       ├── experience.html
-│       └── skill.html
+│       ├── experience_form.html
+│       ├── project.html
+│       ├── project_form.html
+│       ├── skill.html
+│       └── components/
+│           ├── experience_delete_modal.html
+│           └── project_delete_modal.html
 └── README.md
 
 ## Cara Menjalankan
@@ -96,6 +106,22 @@ Sesi malam - Final review, commit terakhir sebelum deploy.
 ### Tugas 2
 
 13 September 2026, aku sempet rombak desain dari yang sebelumnya jadi seperti sekarang. 14 September 2026, sesi jam 3 sore - Menambahkan model `Skill` (dan melengkapi model `Experience`) di `models.py`, membuat migration-nya (`makemigrations` & `migrate`), menambahkan view `show_skill` dan url `skill/` di `main/urls.py`, lalu membangun template `skill.html` yang menarik data dari `Skill.objects.all()` dan ditampilkan lewat skill deck yang sudah ada stylingnya dari Tugas 1. Sekalian menyempurnakan ticker role text di home page supaya loop-nya berjalan tanpa henti (seamless, tanpa jeda/patah saat animasi mengulang).
+
+### Tugas 3
+
+Hari 1
+
+Sesi sore - Sempat kejadian error `NotSupportedError: PostgreSQL 15 or later is required` pas buka halaman `/skill/` di server PWS (Universitas Indonesia), walaupun aman-aman saja di localhost. Setelah ditelusuri, ternyata Django 6.1.1 sudah menghapus dukungan untuk PostgreSQL di bawah versi 15, sementara database yang disediakan PWS masih versi 14.24. Solusinya downgrade `Django==5.1.6` di `requirements.txt` (Django 5.1 masih mendukung PostgreSQL 13+), test ulang di localhost, lalu redeploy ke PWS.
+
+Hari 2
+
+Sesi pagi–siang - Membuat section "Project" baru mengikuti pola arsitektur yang sudah ada di section Experience: menambahkan model `Project` (field `title`, `description`, `category`, `thumbnail`, `project_url`, `created_at`) di `models.py`, `ProjectForm` di `forms.py`, serta view `show_project`, `create_project`, `delete_project`, dan `get_project_json` di `views.py`. Menjalankan `makemigrations` & `migrate` untuk membuat tabel `project` di database.
+Sesi sore - Membangun template `project.html`, `project_form.html`, dan `components/project_delete_modal.html`, lalu menambahkan style CSS section Project (`.project-section`, `.project-grid`, `.project-card`, `.project-delete-modal`) mengikuti visual language yang sama dengan Experience.
+Sesi malam - Menemukan bug menu navbar "PROJECT" cuma muncul di halaman yang extend `base.html` (seperti Experience), tapi tidak muncul di `index.html` dan `skill.html` karena kedua file itu punya `<nav>` sendiri yang di-hardcode terpisah, bukan warisan dari `base.html`. Diperbaiki dengan menambahkan link "PROJECT" secara manual ke navbar di ketiga file tersebut.
+
+Hari 3
+
+Sesi pagi - Menambahkan fitur edit untuk Experience dan Project. Membuat view `edit_experience` dan `edit_project` yang me-reuse `ExperienceForm`/`ProjectForm` yang sudah ada dengan parameter `instance`, lalu memodifikasi `experience_form.html` dan `project_form.html` supaya satu template bisa menangani mode "tambah" maupun "edit" (judul, action form, dan teks tombol berubah otomatis tergantung ada tidaknya `instance`). Menambahkan tombol "Edit" di tiap card Experience dan Project.
 
 ## Pertanyaan Reflektif
 
@@ -158,6 +184,21 @@ Sesi malam - Final review, commit terakhir sebelum deploy.
 
    Kalau hanya menjalankan `makemigrations` tanpa `migrate`, kode Python sudah "tahu" ada field baru tapi database-nya belum punya kolomnya — akan error saat diakses.
 
+### Tugas 3
+
+1. Kita memakai `ModelForm` (seperti `ExperienceForm` dan `ProjectForm` di proyek ini) alih-alih membuat form HTML manual karena `ModelForm` otomatis men-generate field form berdasarkan field yang ada di model (`Experience`, `Project`), lengkap dengan validasi tipe data bawaan Django — misalnya `URLField` otomatis memvalidasi bahwa yang diisi memang format URL yang benar, tanpa aku perlu menulis validasi manual. Kalau pakai HTML form manual, aku harus menulis ulang `<input>` untuk tiap field, menjaga nama field tetap sinkron dengan model secara manual, dan menulis validasi sendiri di view — rawan error dan duplikasi kerja karena struktur field sebenarnya sudah didefinisikan sekali di `models.py`.
+
+   `{% csrf_token %}` wajib ditambahkan pada form karena Django menerapkan proteksi CSRF (Cross-Site Request Forgery) secara default untuk semua request yang mengubah data (POST, PUT, DELETE). Tag ini menyisipkan token unik dan tersembunyi di form yang hanya valid untuk sesi pengguna tersebut; saat form di-submit, Django mencocokkan token itu dengan yang tersimpan di sisi server. Tanpa token ini, form submission akan ditolak (403 Forbidden), karena Django tidak bisa memastikan bahwa request tersebut memang berasal dari form yang di-render oleh server kita sendiri, bukan dari situs jahat yang menipu browser pengguna untuk mengirim request atas nama mereka tanpa sepengetahuan mereka.
+
+2. JSON lebih disukai dibanding XML dalam pengembangan aplikasi web modern karena beberapa alasan. Pertama, **sintaks JSON jauh lebih ringkas** — tidak ada closing tag berulang seperti XML (`<title>...</title>` vs cukup `"title": "..."`), sehingga ukuran payload lebih kecil dan lebih hemat bandwidth, terutama penting untuk API yang dipanggil berkali-kali seperti `get_experience_json` dan `get_project_json` di proyek ini. Kedua, **JSON native di JavaScript** — karena JSON pada dasarnya adalah subset dari object literal JavaScript, browser bisa langsung mem-parsing JSON jadi object JavaScript tanpa library tambahan (`JSON.parse()`), sementara XML butuh proses parsing DOM yang lebih rumit (`DOMParser`, XPath, dsb). Ketiga, **lebih mudah dibaca manusia** dan strukturnya (object, array, key-value) lebih natural memetakan ke struktur data pada hampir semua bahasa pemrograman modern, dibanding XML yang punya konsep tambahan seperti attribute vs element yang kadang ambigu dipakai untuk apa.
+
+3. Alur yang terjadi saat fungsi view mengembalikan data portofolio dalam bentuk JSON (contoh: `get_experience_json` di `main/views.py`) adalah sebagai berikut:
+   - View mengambil data dari database lewat ORM: `Experience.objects.all()`, yang menghasilkan **queryset** — kumpulan objek Python instance dari model `Experience`, bukan format data yang bisa langsung dikirim lewat HTTP.
+   - Data queryset tersebut lalu diproses lewat `serializers.serialize("json", experience_list)`. Fungsi `serialize` inilah yang melakukan **serialization**: mengubah objek Python (instance model, yang punya method, relasi ke database, dan tipe data Python seperti `datetime` atau `UUID`) menjadi representasi string JSON — format teks universal yang bisa dikirim lewat jaringan dan dipahami sistem lain yang mungkin sama sekali tidak menjalankan Python/Django.
+   - Hasil string JSON tersebut dibungkus dalam `HttpResponse` dengan `content_type="application/json"`, lalu dikirim sebagai response HTTP ke client.
+
+   Proses serialization ini **wajib** dilakukan karena objek model Django bukan format data yang portable — objek Python punya referensi memori, method, relasi foreign key, dan tipe data spesifik Python (seperti `UUID` object atau `datetime` object) yang tidak bisa langsung "dimengerti" oleh format transport seperti HTTP body yang cuma berupa teks/bytes. Serialization menjembatani ini dengan mengonversi objek kompleks tersebut menjadi format data sederhana dan universal (string JSON) yang bisa di-decode kembali oleh sistem apapun di sisi penerima — baik itu browser dengan JavaScript, aplikasi mobile, atau bahkan server lain yang sama sekali tidak ditulis dengan Python.
+
 ## AI Disclosure
 
 Aku pakai AI (ChatGPT/Claude) sebagai *pair programmer*, terutama di tahap drafting awal — bukan buat generate satu website jadi sekali klik.
@@ -191,6 +232,23 @@ Aku pakai AI (ChatGPT/Claude) sebagai *pair programmer*, terutama di tahap draft
 
 **Keterbatasan AI yang aku sadari selama proses ini:**
 AI cenderung ngasih solusi yang "kelihatan benar" tapi nggak selalu tervalidasi cross-browser atau cross-device, misalnya soal dukungan `:has()` dan `mask-image` yang sebenarnya belum universal di semua browser, tapi AI nggak otomatis ngingetin itu kecuali ditanya spesifik. AI juga nggak "melihat" hasil visualnya secara langsung, jadi hal-hal kayak overlap animasi, ticker yang patah saat loop, atau spacing yang kelihatan aneh cuma bisa ketauan setelah aku benar-benar buka di browser dan cek manual. Intinya, AI ini alat bantu percepatan, tapi keputusan desain final dan debugging visual tetap kerjaan manusia.
+
+### Tugas 3
+
+**Bagian yang dibantu AI:**
+- Debugging error deployment `NotSupportedError: PostgreSQL 15 or later is required` di server PWS — AI membantu membaca exception trace dan mengidentifikasi bahwa akar masalahnya adalah versi Django yang sudah drop support PostgreSQL 14, lalu menyarankan downgrade versi Django sebagai solusi paling praktis (karena versi database di PWS tidak bisa aku ubah sendiri).
+- Struktur awal model `Project`, `ProjectForm`, view CRUD (`show_project`, `create_project`, `delete_project`, `get_project_json`), routing di `urls.py`, dan template (`project.html`, `project_form.html`, `project_delete_modal.html`) — semuanya dibuat AI dengan cara mereplikasi pola yang sudah ada persis di section Experience (jadi bukan generate dari nol/asal-asalan), termasuk CSS section Project yang meniru struktur `.experience-*` yang sudah ada.
+- Implementasi fitur edit untuk Experience & Project — pendekatan reuse form yang sama untuk mode "tambah" dan "edit" (dibedakan lewat parameter `instance` di view, serta pengecekan `{% if experience %}`/`{% if project %}` di template untuk mengubah judul, action form, dan teks tombol) adalah saran dari AI.
+- Penyusunan kalimat pada blok `Tugas 3` di README ini.
+
+**Bagian yang aku kerjain/perbaiki manual:**
+- Penentuan field apa saja yang relevan untuk model `Project` (misalnya menambahkan `project_url` yang tidak ada di `Experience`, dan mengganti `started_at`/`ended_at` jadi cukup `created_at` karena project tidak punya konsep "sedang berlangsung") tetap aku yang putuskan sesuai kebutuhan tampilan.
+- Menemukan sendiri bug navbar "PROJECT" yang cuma muncul di sebagian halaman — AI baru menyadari penyebabnya (bahwa `index.html` dan `skill.html` tidak meng-extend `base.html`) setelah aku laporkan gejalanya lewat screenshot, jadi proses debugging tetap butuh aku yang mengamati hasil visual di browser dan melaporkan gejala secara spesifik.
+- Verifikasi bahwa CSS section Project benar-benar ter-load dengan benar (bukan cuma percaya style sudah "pasti kepasang" dari AI) — aku cek langsung lewat DevTools dan screenshot browser saat tampilannya masih berantakan/terlalu ke atas.
+- Testing manual di localhost untuk memastikan fitur create, edit, dan delete Project & Experience benar-benar berfungsi (data tersimpan, form ke-prefill saat edit, konfirmasi delete muncul) sebelum redeploy ke PWS.
+
+**Keterbatasan AI yang aku sadari selama proses ini:**
+AI tidak bisa "melihat" hasil render halaman secara langsung, jadi ketika ada masalah visual (seperti section Project yang tampilannya terlalu ke atas dan berantakan karena CSS belum ke-apply, atau navbar yang tidak konsisten antar halaman), AI hanya bisa menebak penyebabnya berdasarkan deskripsi/screenshot yang aku kirim — kalau screenshot atau deskripsinya kurang detail, diagnosis awal AI bisa saja meleset dan butuh iterasi tambahan. AI juga cenderung berasumsi bahwa semua halaman di proyek punya struktur yang seragam (semua extend `base.html`), padahal kenyataannya `index.html` dan `skill.html` dibuat standalone di tugas-tugas sebelumnya — AI baru bisa memberi solusi yang tepat setelah aku share isi file yang sebenarnya, bukan cuma berdasarkan asumsi pola umum Django project. Ini menegaskan bahwa AI paling efektif dipakai sebagai *pair programmer* yang mereplikasi pola dari kode nyata yang sudah ada, bukan sebagai alat yang bisa menebak struktur proyek tanpa diberi konteks lengkap.
 
 ---
 

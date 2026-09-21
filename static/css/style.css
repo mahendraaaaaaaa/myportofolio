@@ -1073,3 +1073,235 @@ a {
         width: auto !important;
     }
 }
+
+/* 
+   PROJECT PAGE
+*/
+
+.project-section {
+    padding: 14rem 0 6rem;
+    scroll-margin-top: 2rem;
+}
+
+.project-section .button {
+    display: inline-block;
+    margin: 1rem 0 2rem;
+}
+
+.project-section h1 {
+    margin: 0.6rem 0 3rem;
+    font-family: "Anton", Impact, sans-serif;
+    font-size: clamp(2.6rem, 5vw, 4rem);
+    color: var(--ink);
+    text-transform: uppercase;
+}
+
+.project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.project-card {
+    padding: 2rem;
+    background-color: #242625;
+    border: 1px solid rgba(201, 252, 2, 0.15);
+    border-radius: 14px;
+    transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.project-card:hover {
+    transform: translateY(-4px);
+    border-color: #C9FC02;
+}
+
+.project-category {
+    display: inline-block;
+    color: #C9FC02;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.project-card h2 {
+    margin: 0.8rem 0 0.8rem;
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 1.3rem;
+    color: #C9FC02;
+}
+
+.project-description {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.project-link {
+    margin-top: 1.4rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.project-link a {
+    color: #C9FC02;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.project-link a:hover {
+    color: #fff;
+}
+
+.project-status {
+    margin-top: 1.4rem;
+}
+
+@media (max-width: 700px) {
+    .project-section {
+        padding: 11rem 0 4rem;
+    }
+}
+
+/* 
+   PROJECT FORM
+*/
+
+.project-form {
+    width: 100%;
+    max-width: 640px;
+    margin-top: 1.5rem;
+}
+
+@media (max-width: 700px) {
+    .project-form {
+        max-width: 100%;
+    }
+}
+
+/* 
+   DELETE PROJECT
+*/
+
+[popover].project-delete-modal {
+    position: fixed !important;
+    inset: auto !important;
+    top: 3rem !important;
+    right: 3rem !important;
+    left: auto !important;
+    bottom: auto !important;
+    margin: 0 !important;
+    width: min(400px, 88vw) !important;
+    height: auto !important;
+    max-width: none !important;
+    max-height: none !important;
+    padding: 2.2rem 2.4rem !important;
+    background-color: #1b1c1b !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 20px !important;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5) !important;
+    overflow: visible !important;
+}
+
+[popover].project-delete-modal::backdrop {
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.project-delete-modal__close {
+    position: absolute;
+    top: 1.4rem;
+    right: 1.6rem;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.project-delete-modal h2 {
+    font-family: "Space Grotesk", sans-serif;
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: #C9FC02;
+    margin-bottom: 1.2rem;
+    padding-right: 1.5rem;
+}
+
+.project-delete-modal p {
+    color: #fff;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.project-delete-modal__actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.8rem;
+}
+
+.project-delete-modal__actions form {
+    flex: 1;
+    display: flex;
+}
+
+.project-delete-modal__confirm,
+.project-delete-modal__cancel {
+    flex: 1;
+    padding: 1rem 1.2rem;
+    border: none;
+    border-radius: 999px;
+    font-family: "Space Grotesk", sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.project-delete-modal__confirm {
+    background-color: #C9FC02;
+    color: #111dc4;
+}
+
+.project-delete-modal__confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(201, 252, 2, 0.3);
+}
+
+.project-delete-modal__cancel {
+    background-color: #111dc4;
+    color: #0d0d33;
+}
+
+.project-delete-modal__cancel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(17, 29, 196, 0.4);
+}
+
+@media (max-width: 700px) {
+    [popover].project-delete-modal {
+        top: 1.5rem !important;
+        right: 1.5rem !important;
+        left: 1.5rem !important;
+        width: auto !important;
+    }
+}
+
+/*
+   EDIT BUTTON
+*/
+
+.button-edit {
+    background-color: transparent;
+    color: #C9FC02;
+    border: 1px solid #C9FC02;
+    margin-right: 0.8rem;
+}
+
+.button-edit:hover {
+    background-color: #C9FC02;
+    color: var(--bg);
+    box-shadow: 0 10px 25px rgba(201, 252, 2, 0.3);
+}

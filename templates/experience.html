@@ -28,6 +28,7 @@
                                 <p class="experience-status">Selesai</p>
                             {% endif %}
                             
+                            <a href="{% url 'main:edit_experience' experience.id %}" class="button button-edit">Edit</a>
                             {% include "components/experience_delete_modal.html" with experience=experience %}
                         </article>
                     {% empty %}
