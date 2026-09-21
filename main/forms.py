@@ -1,5 +1,5 @@
 from django.forms import ModelForm, TextInput, Textarea, Select, URLInput
-from main.models import Experience
+from main.models import Experience, Project
 
 
 class ExperienceForm(ModelForm):
@@ -38,6 +38,52 @@ class ExperienceForm(ModelForm):
             "thumbnail": URLInput(
                 attrs={
                     "placeholder": "https://drive.google.com/thumbnail?id=...&sz=w1000",
+                }
+            ),
+        }
+
+
+class ProjectForm(ModelForm):
+    class Meta:
+        model = Project
+        fields = [
+            "title",
+            "description",
+            "category",
+            "thumbnail",
+            "project_url",
+        ]
+
+        labels = {
+            "title": "Nama Project",
+            "description": "Deskripsi",
+            "category": "Kategori",
+            "thumbnail": "URL Thumbnail",
+            "project_url": "URL Project (demo/repo)",
+        }
+
+        widgets = {
+            "title": TextInput(
+                attrs={
+                    "placeholder": "Contoh: Portfolio Website",
+                    "maxlength": 255,
+                }
+            ),
+            "description": Textarea(
+                attrs={
+                    "placeholder": "Ceritakan tentang project ini",
+                    "rows": 3,
+                }
+            ),
+            "category": Select(),
+            "thumbnail": URLInput(
+                attrs={
+                    "placeholder": "https://drive.google.com/thumbnail?id=...&sz=w1000",
+                }
+            ),
+            "project_url": URLInput(
+                attrs={
+                    "placeholder": "https://github.com/username/repo",
                 }
             ),
         }
