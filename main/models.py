@@ -37,3 +37,22 @@ class Skill(models.Model):
 
     def __str__(self):
         return self.name
+
+class Project(models.Model):
+    PROJECT_CHOICES = [
+        ('web', 'Web Development'),
+        ('mobile', 'Mobile App'),
+        ('design', 'Graphic Design'),
+        ('other', 'Other'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    category = models.CharField(max_length=20, choices=PROJECT_CHOICES, default='web')
+    thumbnail = models.URLField(blank=True, null=True)
+    project_url = models.URLField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
