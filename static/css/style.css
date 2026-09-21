@@ -957,11 +957,6 @@ a {
 
 /* 
    DELETE EXPERIENCE
-   The element below carries the native `popover` attribute, which ships
-   with strong browser default styles (white background, black border,
-   centered fixed box). We target it with the attribute selector
-   `[popover].experience-delete-modal` plus !important so our design
-   always wins regardless of the browser's built-in popover stylesheet.
 */
 
 .button-danger {
