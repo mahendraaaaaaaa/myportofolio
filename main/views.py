@@ -217,7 +217,6 @@ def toggle_star(request, project_id):
 
     return redirect("main:show_project")
 
-
 # AUTH
 # =========================
 
