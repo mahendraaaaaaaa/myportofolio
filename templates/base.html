@@ -34,6 +34,13 @@
                 {% if request.resolver_match.url_name == 'show_project' or request.resolver_match.url_name == 'create_project' %}class="active"{% endif %}>PROJECT</a>
                 <a href="{% url 'main:show_skill' %}"
                 {% if request.resolver_match.url_name == 'show_skill' %}class="active"{% endif %}>SKILLS</a>
+                {% if user.is_authenticated %}
+                    <span class="nav-user">{{ user.username }}</span>
+                    <a href="{% url 'main:logout' %}">LOGOUT</a>
+                {% else %}
+                    <a href="{% url 'main:login' %}">LOGIN</a>
+                    <a href="{% url 'main:register' %}">REGISTER</a>
+                {% endif %}
             </nav>
 
             <a href="tel:+62895385527443" class="contact-info">
