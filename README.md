@@ -43,12 +43,15 @@ di-hover.
 │       ├── index.html
 │       ├── experience.html
 │       ├── experience_form.html
+│       ├── login.html
 │       ├── project.html
 │       ├── project_form.html
+│       ├── register.html
 │       ├── skill.html
 │       └── components/
 │           ├── experience_delete_modal.html
-│           └── project_delete_modal.html
+│           ├── project_delete_modal.html
+│           └── project_star.html
 └── README.md
 
 ## Cara Menjalankan
@@ -122,6 +125,20 @@ Sesi malam - Menemukan bug menu navbar "PROJECT" cuma muncul di halaman yang ext
 Hari 3
 
 Sesi pagi - Menambahkan fitur edit untuk Experience dan Project. Membuat view `edit_experience` dan `edit_project` yang me-reuse `ExperienceForm`/`ProjectForm` yang sudah ada dengan parameter `instance`, lalu memodifikasi `experience_form.html` dan `project_form.html` supaya satu template bisa menangani mode "tambah" maupun "edit" (judul, action form, dan teks tombol berubah otomatis tergantung ada tidaknya `instance`). Menambahkan tombol "Edit" di tiap card Experience dan Project.
+
+### Tugas 4
+
+Hari 1
+
+Sesi 1 - Membuat autentikasi dasar mengikuti tutorial: menambahkan view `register`, `login_user`, dan `logout_user` di `views.py`, tiga path baru (`register/`, `login/`, `logout/`) di `main/urls.py`, template `register.html` dan `login.html`, serta blok status login di navbar `base.html` (username + Logout kalau sudah login, Login + Register kalau belum). Nilai `name` di kode tutorial masih `"Burhan"`, jadi aku ganti jadi `"Bagas"`. Cookie `last_login` disimpan saat login dan dihapus saat logout.
+Sesi 2 - Debugging waktu pertama kali `runserver` setelah semua langkah tutorial selesai. Browser cuma menampilkan `A server error occurred. Please contact the administrator.`, dan setelah dicek di terminal, ternyata errornya `connection to server at "localhost", port 5432 failed: Connection refused`. Bukan kode autentikasinya yang salah, tapi variabel `PRODUCTION` terbaca `True` sehingga `settings.py` mencoba memakai PostgreSQL (dan `DEBUG` otomatis `False`, makanya halaman errornya generik). Setelah `.env` dibenerin jadi `PRODUCTION=False`, proyek balik ke SQLite. Muncul error baru `AttributeError: 'Settings' object has no attribute 'ROOT_URLCONF'` karena baris `ROOT_URLCONF = 'portofolio.urls'` ternyata hilang dari `settings.py`, lalu aku tambahkan lagi. Setelah itu alur register, login, dan logout bisa dicoba dari browser.
+Sesi 3 - Menambahkan proteksi view dan fitur star. Memasang `@login_required(login_url="/login/")` pada view yang mengubah data, menambahkan field `starred_by = ManyToManyField(User, related_name="starred_projects", blank=True)` di model `Project` (migrasi `0004_project_starred_by`), membuat komponen `templates/components/project_star.html`, view `toggle_star` (POST + `{% csrf_token %}`), path `projects/<uuid:project_id>/star/`, dan CSS tombol star. Pas tombol star pertama kali ditekan muncul `NoReverseMatch: Reverse for 'show_projects' not found` karena redirect di `toggle_star` memakai nama URL dari tutorial (`show_projects`), sedangkan nama URL di proyekku `show_project`. Di sesi yang sama, `get_project_json` ditambah `use_natural_foreign_keys=True` supaya `starred_by` di `/api/project/` berisi username, bukan id internal database.
+
+Hari 2
+
+Sesi pagi - Menerapkan peran dan otorisasi sesuai spesifikasi Tugas 4. Aku memutuskan menerapkannya di kedua section (Project dan Experience), bukan cuma Project, karena halaman Experience masih menampilkan tombol Tambah, Edit, dan Hapus ke semua pengunjung. Membuat grup `Editor` di Django Admin yang hanya berisi permission `Can change project` dan `Can change experience`, lalu membuat akun uji `keluarga.barak` dan memasukkannya ke grup itu. Pengecekan `is_superuser` di view diganti dengan `@permission_required(..., raise_exception=True)` (ditambah `@require_POST` untuk hapus dan `toggle_star`), dan tombol di template dibungkus `{% if perms.main.add_project %}`, `{% if perms.main.change_project %}`, `{% if perms.main.delete_project %}` beserta padanannya untuk `experience`.
+Sesi siang - Testing manual tiap peran. Login sebagai `keluarga.barak` menampilkan tombol Edit dan Star tanpa Tambah dan Hapus, sesuai target, tapi pas Edit ditekan malah muncul 403 padahal Editor seharusnya boleh mengedit. Penyebabnya, view `edit_experience` dan `edit_project` masih punya pengecekan lama `if not request.user.is_superuser: raise PermissionDenied` yang tertinggal dari tahap sebelumnya, jadi permission grup tidak pernah terpakai. Pengecekan itu dihapus dan diganti `@permission_required`. Saat tes sebagai pengunjung, aku sempat dapat 404 di `/projects/add/`, ternyata path yang benar `/project/add/` (tanpa "s"), cuma path star yang memakai `projects/`.
+Sesi malam - Merapikan Git sesuai rubrik. Commit awal `autentikasi dan otorisasi` mengumpulkan 13 file sekaligus, jadi pekerjaan berikutnya aku pecah per fitur ke branch terpisah (`feat/authentication`, `feat/project-star`, `feat/roles-permissions`) dengan pesan commit gaya *conventional commits* (`feat(auth): ...`, `fix(settings): ...`, `style(ui): ...`), lalu digabung ke `main` pakai `git merge --no-ff`. Sempat `git push origin main` menjawab `Everything up-to-date` karena commit ternyata masuk ke branch `master` lokal, dan `git pull` juga sempat ditolak karena masih ada perubahan yang belum di-commit. Keduanya beres setelah perubahan yang tertinggal di-commit, lalu sinkronisasi dan push. `.env` dan `db.sqlite3` juga kupastikan nggak ikut ter-commit.
 
 ## Pertanyaan Reflektif
 
@@ -249,6 +266,25 @@ AI cenderung ngasih solusi yang "kelihatan benar" tapi nggak selalu tervalidasi 
 
 **Keterbatasan AI yang aku sadari selama proses ini:**
 AI tidak bisa "melihat" hasil render halaman secara langsung, jadi ketika ada masalah visual (seperti section Project yang tampilannya terlalu ke atas dan berantakan karena CSS belum ke-apply, atau navbar yang tidak konsisten antar halaman), AI hanya bisa menebak penyebabnya berdasarkan deskripsi/screenshot yang aku kirim — kalau screenshot atau deskripsinya kurang detail, diagnosis awal AI bisa saja meleset dan butuh iterasi tambahan. AI juga cenderung berasumsi bahwa semua halaman di proyek punya struktur yang seragam (semua extend `base.html`), padahal kenyataannya `index.html` dan `skill.html` dibuat standalone di tugas-tugas sebelumnya — AI baru bisa memberi solusi yang tepat setelah aku share isi file yang sebenarnya, bukan cuma berdasarkan asumsi pola umum Django project. Ini menegaskan bahwa AI paling efektif dipakai sebagai *pair programmer* yang mereplikasi pola dari kode nyata yang sudah ada, bukan sebagai alat yang bisa menebak struktur proyek tanpa diberi konteks lengkap.
+
+### Tugas 4
+
+**Bagian yang dibantu AI:**
+- Merancang model otorisasi dengan `Group` + `Permission` bawaan Django (bukan pengecekan `is_superuser` di banyak tempat), sehingga peran Editor cukup diberi permission `change_*` dan superuser otomatis mendapat semuanya, lengkap dengan tabel hak akses untuk 4 peran.
+- Kode dekorator `@login_required` + `@permission_required(..., raise_exception=True)` + `@require_POST` di view, serta pola `{% if perms.main.change_project %}` di template untuk menyembunyikan tombol bagi pengguna yang tidak berhak.
+- Penerapan fitur star: field `starred_by` di model `Project`, komponen `project_star.html`, view `toggle_star`, dan CSS tombol star yang disesuaikan dengan palet warna situsku (termasuk memperbaiki warna `.star-count` yang hampir tidak terlihat di tombol berlatar terang dan spesifisitas CSS yang bikin margin tombol Edit tertimpa).
+- Diagnosis error berdasarkan traceback dan screenshot: `PRODUCTION=True` yang memicu koneksi PostgreSQL di laptop, `ROOT_URLCONF` yang hilang, dan `NoReverseMatch` karena beda nama URL.
+- Panduan Git (branch per fitur, conventional commits, `merge --no-ff`, menyamakan `master` dan `main`) serta penyusunan kalimat pada blok `Tugas 4` di README ini.
+
+**Bagian yang aku kerjain/perbaiki manual:**
+- Memutuskan menerapkan otorisasi di kedua section (Project dan Experience), padahal tutorial hanya mencontohkan Project, setelah melihat sendiri halaman Experience-ku masih terbuka untuk semua pengunjung.
+- Membuat grup `Editor` di Django Admin, memilih hanya permission `change` (tanpa `add` dan `delete`), membuat akun uji `keluarga.barak`, dan menguji tiap peran langsung di browser. Dari situ aku menemukan gejala bug Editor: tombol Edit muncul tapi berujung 403, sesuatu yang tidak akan ketahuan kalau aku cuma login sebagai superuser.
+- Menyesuaikan semua kode dengan nama yang sebenarnya ada di proyekku (`show_project`, `project_id`, `experience_id`), karena contoh dari tutorial dan AI memakai nama yang berbeda.
+- Memeriksa `/api/project/` untuk memastikan `starred_by` hanya berisi username, dan mengganti nilai `name` `"Burhan"` dari kode tutorial menjadi namaku.
+- Menjalankan sendiri semua perintah Git di laptopku, mengecek `git status` dan `git log`, dan memastikan `.env` serta `db.sqlite3` tidak ikut ter-commit.
+
+**Keterbatasan AI yang aku sadari selama proses ini:**
+AI tidak bisa melihat file dan struktur proyekku, jadi beberapa kali ia menebak nama yang ternyata salah: menyuruh tes ke `/projects/add/` padahal path sebenarnya `/project/add/`, memakai nama URL `show_projects` dari tutorial padahal punyaku `show_project`, dan memakai parameter `id` di contoh awal padahal di `urls.py`-ku `project_id`. Semuanya baru benar setelah aku mengirim halaman 404 yang menampilkan daftar URL asli dan isi `views.py`. AI juga sempat salah arah saat mendiagnosis "A server error occurred": tebakan pertamanya `DEBUG=False`, yang cuma menjelaskan kenapa pesannya generik, sementara akar masalahnya (`PRODUCTION=True` yang bikin Django mencoba PostgreSQL) baru ketemu setelah aku menempelkan traceback dari terminal. Bug Editor yang kena 403 juga tidak bisa ditebak AI karena sisa pengecekan `is_superuser` ada di kode lamaku yang belum ia lihat. Selain itu AI tidak bisa menjalankan apa pun di komputerku dan tidak melihat hasil render: `git push` yang terlihat "sukses" ternyata cuma `Everything up-to-date` karena commit ada di branch `master`, dan jarak antar tombol di card Project baru ketahuan berantakan setelah aku melihatnya di browser. Ini menegaskan bahwa AI berguna untuk merancang pola dan mempercepat debugging, tapi setiap sarannya tetap harus dicocokkan dengan kode nyata dan diverifikasi manual di mesin dan browser sendiri.
 
 ---
 
