@@ -1,49 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ name }} - Portfolio</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-
-<body>
-    <header class="site-header">
-        <div class="portfolio-nav">
-
-            <a href="{% url 'main:show_main' %}" class="brand">
-                <img class="brand-star" src="/static/img/StarLogo.png" alt="Star icon">
-                <span class="brand-text">
-                    BAGAS
-                    <small>PORTOFOLIO</small>
-                </span>
-            </a>
-
-            <nav class="main-nav" aria-label="Main navigation">
-                <a href="{% url 'main:show_main' %}" class="active">HOME</a>
-                <a href="#about">PROFILE</a>
-                <a href="{% url 'main:show_experience' %}">EXPERIENCE</a>
-                <a href="{% url 'main:show_project' %}">PROJECT</a>
-                <a href="{% url 'main:show_skill' %}">SKILLS</a>
-            </nav>
-
-            <a href="tel:+62895385527443" class="contact-info">
-                <span class="contact-icon">
-                    <img src="/static/img/Phoneicon.png" alt="Phone icon">
-                </span>
-                <span class="contact-copy">
-                    <small>CONTACT ME</small>
-                    <strong>+62 895 3855 27443</strong>
-                </span>
-            </a>
-        </div>
-    </header>
-
+{% extends "base.html" %}
+{% block meta %}
+    <title>{{ name }} - Portofolio</title>
+{% endblock meta %}
+{% block content %}
     <main>
         <section class="hero" id="profile">
             <div class="hero-stage">
@@ -108,40 +67,22 @@
                     <p class="section-kicker">About Me</p>
                     <p class="about-bio">{{ bio }}</p>
 
-                    <div class="meta-list">
+                    <dl class="meta-list">
                         <div class="meta-row">
-                            <div class="meta-icon">
-                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 2 2 7l10 5 10-5-10-5Zm0 8L2 15l10 5 10-5-10-5Z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <dt>NPM</dt>
-                                <dd>{{ npm }}</dd>
-                            </div>
+                            <dt>NPM</dt>
+                            <dd>{{ npm }}</dd>
                         </div>
-
                         <div class="meta-row">
-                            <div class="meta-icon">
-                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3Zm0 13.5L4.5 12.5V15c0 2.2 3.4 4 7.5 4s7.5-1.8 7.5-4v-2.5L12 16.5Z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <dt>Program Studi</dt>
-                                <dd>{{ study_program }}</dd>
-                            </div>
+                            <dt>Program</dt>
+                            <dd>{{ study_program }}</dd>
                         </div>
-                    </div>
+                        <div class="meta-row">
+                            <dt>Sesi Terakhir Login</dt>
+                            <dd>{{ last_login }}</dd>
+                        </div>
+                    </dl>
                 </div>
             </div>
         </section>
     </main>
-
-    <footer class="site-footer">
-        <div class="container">
-            <p>&copy; 2026 {{ name }}. Fakultas Ilmu Komputer, Universitas Indonesia</p>
-        </div>
-    </footer>
-</body>
-</html>
+{% endblock content %}
