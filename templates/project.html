@@ -9,7 +9,9 @@
             <p class="section-kicker section-kicker--small">Karya yang pernah saya buat</p>
             <h1>Project</h1>
 
-            <a href="{% url 'main:create_project' %}" class="button">+ Tambah Project</a>
+            {% if user.is_superuser %}
+                <a href="{% url 'main:create_project' %}" class="button">+ Tambah Project</a>
+            {% endif %}
 
             <div class="project-grid">
                 {% for project in project_list %}
@@ -26,8 +28,15 @@
                         </p>
                     {% endif %}
 
-                    <a href="{% url 'main:edit_project' project.id %}" class="button button-edit">Edit</a>
-                    {% include "components/project_delete_modal.html" with project=project %}
+                    {% if perms.main.change_project %}
+                        <a href="{% url 'main:edit_project' project.id %}" class="button button-edit">Edit</a>
+                    {% endif %}
+
+                    {% include "components/project_star.html" with project=project %}
+
+                    {% if perms.main.delete_project %}
+                        {% include "components/project_delete_modal.html" with project=project %}
+                    {% endif %} 
                 </article>
                 {% empty %}
                 <p class="empty-state">
