@@ -4,6 +4,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 from django.http import HttpResponse
 from django.core import serializers
+from django.core.exceptions import PermissionDenied
+
+from django.contrib.auth import login, logout
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.decorators import login_required
 
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
@@ -147,6 +152,9 @@ def show_project(request):
 @login_required(login_url="/login/")
 @permission_required("main.add_project", raise_exception=True)
 def create_project(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     form = ProjectForm(request.POST or None)
 
     if request.method == "POST" and form.is_valid():
