@@ -2,13 +2,8 @@ import datetime
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.core import serializers
-from django.core.exceptions import PermissionDenied
-
-from django.contrib.auth import login, logout
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from django.contrib.auth.decorators import login_required
 
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
@@ -40,6 +35,7 @@ def show_main(request):
     return render(request, "index.html", context)
 
 
+# =========================
 # EXPERIENCE
 # =========================
 
@@ -59,6 +55,7 @@ def show_experience(request):
         "title_query": title_query,
     }
     return render(request, "experience.html", context)
+
 
 @login_required(login_url="/login/")
 @permission_required("main.add_experience", raise_exception=True)
@@ -117,6 +114,7 @@ def get_experience_json(request):
     return HttpResponse(experience_json, content_type="application/json")
 
 
+# =========================
 # SKILL
 # =========================
 
@@ -128,23 +126,19 @@ def show_skill(request):
     return render(request, "skill.html", context)
 
 
+# =========================
 # PROJECT
 # =========================
 
 def show_project(request):
-    json_response = get_project_json(request)
-
-    project_list = serializers.deserialize(
-        "json",
-        json_response.content.decode("utf-8"),
-    )
-    project_list = [project.object for project in project_list]
+    # project.html sekarang mengambil data lewat AJAX (get_project_json),
+    # jadi di sini cukup kirim data yang dibutuhkan halaman & modal tambah proyek.
     title_query = request.GET.get("title", "").strip()
 
     context = {
         "name": "Bagas",
-        "project_list": project_list,
         "title_query": title_query,
+        "form": ProjectForm(),
     }
     return render(request, "project.html", context)
 
@@ -152,9 +146,6 @@ def show_project(request):
 @login_required(login_url="/login/")
 @permission_required("main.add_project", raise_exception=True)
 def create_project(request):
-    if not request.user.is_superuser:
-        raise PermissionDenied
-    
     form = ProjectForm(request.POST or None)
 
     if request.method == "POST" and form.is_valid():
@@ -167,6 +158,24 @@ def create_project(request):
         "form": form,
     }
     return render(request, "project_form.html", context)
+
+@require_POST
+def create_project_ajax(request):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan proyek."},
+            status=403,
+        )
+
+    form = ProjectForm(request.POST)
+    if form.is_valid():
+        project = form.save()
+        return JsonResponse(
+            {"message": "Proyek berhasil ditambahkan.", "pk": str(project.id)},
+            status=201,
+        )
+
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
 
 
 @login_required(login_url="/login/")
@@ -200,15 +209,36 @@ def delete_project(request, project_id):
 
 def get_project_json(request):
     title_query = request.GET.get("title", "").strip()
-    project_list = Project.objects.all()
+    projects = Project.objects.prefetch_related("starred_by").all()
 
     if title_query:
-        project_list = project_list.filter(title__icontains=title_query)
+        projects = projects.filter(title__icontains=title_query)
 
-    project_json = serializers.serialize(
-        "json", project_list, use_natural_foreign_keys=True
-    )
-    return HttpResponse(project_json, content_type="application/json")
+    # Konstruksi data JSON manual (bukan serializers.serialize) supaya
+    # bisa menyisipkan logika Star (is_starred, star_count) per pengguna.
+    data = []
+    for project in projects:
+        starred_users = project.starred_by.all()
+        is_starred = (
+            request.user in starred_users if request.user.is_authenticated else False
+        )
+        starred_by_names = ", ".join([u.username for u in starred_users])
+
+        data.append({
+            "pk": str(project.id),
+            "fields": {
+                "title": project.title,
+                "description": project.description,
+                "category": project.category,
+                "project_url": project.project_url,
+                "thumbnail": project.thumbnail,
+                "star_count": starred_users.count(),
+                "is_starred": is_starred,
+                "starred_by_names": starred_by_names,
+            },
+        })
+
+    return JsonResponse(data, safe=False)
 
 
 @login_required(login_url="/login/")
@@ -225,6 +255,8 @@ def toggle_star(request, project_id):
 
     return redirect("main:show_project")
 
+
+# =========================
 # AUTH
 # =========================
 
