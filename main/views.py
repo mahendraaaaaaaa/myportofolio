@@ -40,19 +40,12 @@ def show_main(request):
 # =========================
 
 def show_experience(request):
-    json_response = get_experience_json(request)
-
-    experience_list = serializers.deserialize(
-        "json",
-        json_response.content.decode("utf-8"),
-    )
-    experience_list = [experience.object for experience in experience_list]
     title_query = request.GET.get("title", "").strip()
 
     context = {
         "name": "Bagas",
-        "experience_list": experience_list,
         "title_query": title_query,
+        "form": ExperienceForm(),
     }
     return render(request, "experience.html", context)
 
@@ -73,6 +66,22 @@ def create_experience(request):
     }
     return render(request, "experience_form.html", context)
 
+def create_experience_ajax(request):
+    if request.method != "POST":
+        return JsonResponse({"message": "Method not allowed."}, status=405)
+
+    if not request.user.is_authenticated or not request.user.has_perm("main.add_experience"):
+        return JsonResponse(
+            {"message": "Anda tidak memiliki izin untuk menambahkan experience."},
+            status=403,
+        )
+
+    form = ExperienceForm(request.POST)
+    if form.is_valid():
+        form.save()
+        return JsonResponse({"message": "Experience berhasil ditambahkan."}, status=200)
+
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
 
 @login_required(login_url="/login/")
 @permission_required("main.change_experience", raise_exception=True)
@@ -105,13 +114,26 @@ def delete_experience(request, experience_id):
 
 def get_experience_json(request):
     title_query = request.GET.get("title", "").strip()
-    experience_list = Experience.objects.all()
+    experiences = Experience.objects.all()
 
     if title_query:
-        experience_list = experience_list.filter(title__icontains=title_query)
+        experiences = experiences.filter(title__icontains=title_query)
 
-    experience_json = serializers.serialize("json", experience_list)
-    return HttpResponse(experience_json, content_type="application/json")
+    data = []
+    for experience in experiences:
+        data.append({
+            "pk": str(experience.id),
+            "fields": {
+                "title": experience.title,
+                "description": experience.description,
+                "category": experience.category,
+                "category_display": experience.get_category_display(),
+                "thumbnail": experience.thumbnail,
+                "is_ongoing": experience.is_ongoing,
+            },
+        })
+
+    return JsonResponse(data, safe=False)
 
 
 # =========================
@@ -161,19 +183,19 @@ def create_project(request):
 
 @require_POST
 def create_project_ajax(request):
-    if not request.user.is_superuser:
+    if request.method != "POST":
+        return JsonResponse({"message": "Method not allowed."}, status=405)
+
+    if not request.user.is_authenticated or not request.user.has_perm("main.add_project"):
         return JsonResponse(
-            {"message": "Hanya pemilik portofolio yang dapat menambahkan proyek."},
+            {"message": "Anda tidak memiliki izin untuk menambahkan project."},
             status=403,
         )
 
     form = ProjectForm(request.POST)
     if form.is_valid():
-        project = form.save()
-        return JsonResponse(
-            {"message": "Proyek berhasil ditambahkan.", "pk": str(project.id)},
-            status=201,
-        )
+        form.save()
+        return JsonResponse({"message": "Project berhasil ditambahkan."}, status=200)
 
     return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
 
