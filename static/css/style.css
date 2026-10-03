@@ -1389,6 +1389,10 @@ a {
 .toast-error { border-left: 4px solid #b42318; }
 .toast-normal { border-left: 4px solid var(--accent); }
 
+.hide {
+    display: none !important;
+}
+
 
 /* 
     PROJECT FORM MODAL
