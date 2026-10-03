@@ -47,7 +47,7 @@
     </section>
 </main>
 
-{% if user.is_superuser %}
+{% if perms.main.add_project %}
     {% include "components/project_form_modal.html" %}
 {% endif %}
 
@@ -122,11 +122,10 @@ function buildProjectCardElement(item) {
         : '';
 
     // starred_by hasil use_natural_foreign_keys berbentuk [["username1"], ["username2"]]
-    const starredNames = (project.starred_by || []).map(nk => nk[0]);
-    const starCount = starredNames.length;
-    const isStarred = starredNames.includes(CURRENT_USERNAME);
+    const starCount = project.star_count;
+    const isStarred = project.is_starred;
     const starTitle = starCount > 0
-        ? `Dibintangi oleh ${escapeHtml(starredNames.join(', '))}`
+        ? `Dibintangi oleh ${escapeHtml(project.starred_by_names)}`
         : "Jadilah yang pertama memberi star";
     const starText = isStarred ? "Unstar" : "Star";
 
