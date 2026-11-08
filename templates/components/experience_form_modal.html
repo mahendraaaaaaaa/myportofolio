@@ -1,43 +1,43 @@
-<div id="add-experience-modal"
+{# Satu modal untuk mode tambah (POST) dan mode ubah (PATCH). Judul, teks tombol,
+   dan isi field diatur oleh JavaScript di experience.html lewat openExperienceModal(). #}
+<div id="experience-form-modal"
      class="project-form-modal"
      popover="auto"
      role="dialog"
      aria-modal="true"
-     aria-labelledby="add-experience-modal-title">
+     aria-labelledby="experience-form-modal-title">
     <button type="button"
             class="project-form-modal__backdrop"
-            popovertarget="add-experience-modal"
+            popovertarget="experience-form-modal"
             popovertargetaction="hide"
-            aria-label="Tutup form tambah pengalaman"></button>
+            aria-label="Tutup form pengalaman"></button>
 
     <div class="project-form-modal__content">
         <button type="button"
                 class="project-form-modal__close"
-                popovertarget="add-experience-modal"
+                popovertarget="experience-form-modal"
                 popovertargetaction="hide"
-                aria-label="Tutup form tambah pengalaman">×</button>
+                aria-label="Tutup form pengalaman">×</button>
 
-        <h2 id="add-experience-modal-title">Tambah Pengalaman Baru</h2>
-        <form id="experience-form"
-              method="post"
-              action="{% url 'main:create_experience' %}"
-              class="project-form">
-            {% csrf_token %}
+        <h2 id="experience-form-modal-title">Tambah Pengalaman Baru</h2>
+        <form id="experience-form" class="project-form">
             {% for field in form %}
                 <div class="form-group">
                     <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                    {{ field }}
-                    {% for error in field.errors %}
-                        <p class="form-error">{{ error }}</p>
-                    {% endfor %}
+                    {% if field.name == "ended_at" %}
+                        {# Cukup tanggal: dikirim ke API sebagai "YYYY-MM-DD" atau null. #}
+                        <input type="date" name="ended_at" id="{{ field.id_for_label }}">
+                    {% else %}
+                        {{ field }}
+                    {% endif %}
                 </div>
             {% endfor %}
             <div class="project-form-modal__actions">
                 <button type="button"
                         class="button button-secondary"
-                        popovertarget="add-experience-modal"
+                        popovertarget="experience-form-modal"
                         popovertargetaction="hide">Batal</button>
-                <button type="submit" class="button">Tambah Pengalaman</button>
+                <button type="submit" id="experience-form-submit" class="button">Tambah Pengalaman</button>
             </div>
         </form>
     </div>

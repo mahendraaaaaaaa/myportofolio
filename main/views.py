@@ -8,6 +8,7 @@ from django.core import serializers
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.decorators import login_required, permission_required
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 
 from main.models import Experience, Skill, Project
@@ -39,6 +40,7 @@ def show_main(request):
 # EXPERIENCE
 # =========================
 
+@ensure_csrf_cookie
 def show_experience(request):
     title_query = request.GET.get("title", "").strip()
 
