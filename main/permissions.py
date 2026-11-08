@@ -11,9 +11,12 @@ class IsPortfolioOwnerOrReadOnly(BasePermission):
         )
 
 
-# Untuk bagian pilihan tugas (Individual Assignment 6), bukan untuk Projects.
-# Belum dipasang ke view mana pun.
 class IsPortfolioOwnerOrEditorOrReadOnly(BasePermission):
+    message = (
+        "Anda tidak memiliki izin untuk melakukan tindakan ini. Menambah dan "
+        "menghapus hanya untuk pemilik portofolio; Editor hanya dapat mengubah."
+    )
+    
     def has_permission(self, request, view):
         if request.method in SAFE_METHODS:
             return True
